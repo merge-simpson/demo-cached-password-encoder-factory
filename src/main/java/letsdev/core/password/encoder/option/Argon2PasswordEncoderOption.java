@@ -10,5 +10,6 @@ public interface Argon2PasswordEncoderOption extends PasswordEncoderOption {
     float alpha();
     int memory();
     float gain();
-    Argon2Variant mode();
+    @Override
+    Argon2Variant encoderType();
 }

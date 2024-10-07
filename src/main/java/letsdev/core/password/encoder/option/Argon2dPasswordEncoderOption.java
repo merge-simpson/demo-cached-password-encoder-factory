@@ -1,7 +1,6 @@
 package letsdev.core.password.encoder.option;
 
 import letsdev.core.password.encoder.GeneralPasswordEncoderType.Argon2Variant;
-import letsdev.core.password.encoder.PasswordEncoderType;
 
 /**
  *
@@ -26,12 +25,7 @@ public record Argon2dPasswordEncoderOption(
 ) implements Argon2PasswordEncoderOption {
 
     @Override
-    public PasswordEncoderType encoderType() {
-        return mode();
-    }
-
-    @Override
-    public Argon2Variant mode() {
+    public Argon2Variant encoderType() {
         return Argon2Variant.ARGON2D;
     }
 
