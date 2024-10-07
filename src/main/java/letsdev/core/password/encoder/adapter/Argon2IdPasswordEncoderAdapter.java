@@ -2,7 +2,8 @@ package letsdev.core.password.encoder.adapter;
 
 import jakarta.annotation.Nonnull;
 import letsdev.core.password.encoder.option.Argon2idPasswordEncoderOption;
-import letsdev.core.password.encoder.port.Argon2idPasswordEncoderPort;
+import letsdev.core.password.encoder.port.Argon2IdCustomSaltingPasswordEncoder;
+import letsdev.core.password.encoder.port.Argon2IdPasswordEncoder;
 import letsdev.core.password.exception.PasswordEncoderEncryptionException;
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
 import org.bouncycastle.crypto.params.Argon2Parameters;
@@ -11,7 +12,9 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class Argon2idPasswordEncoderAdapter implements Argon2idPasswordEncoderPort {
+public class Argon2IdPasswordEncoderAdapter
+        implements Argon2IdPasswordEncoder,
+        Argon2IdCustomSaltingPasswordEncoder {
 
     private static final String PREFIX = "{argon2}";
 
@@ -22,7 +25,7 @@ public class Argon2idPasswordEncoderAdapter implements Argon2idPasswordEncoderPo
     private final int iterations;
     private final int memory;
 
-    public Argon2idPasswordEncoderAdapter(Argon2idPasswordEncoderOption option) {
+    public Argon2IdPasswordEncoderAdapter(Argon2idPasswordEncoderOption option) {
         this(
                 new Argon2PasswordEncoder(
                         option.saltLength(),
@@ -39,7 +42,7 @@ public class Argon2idPasswordEncoderAdapter implements Argon2idPasswordEncoderPo
         );
     }
 
-    private Argon2idPasswordEncoderAdapter(
+    private Argon2IdPasswordEncoderAdapter(
             Argon2PasswordEncoder passwordEncoder,
             int saltLength,
             int hashLength,

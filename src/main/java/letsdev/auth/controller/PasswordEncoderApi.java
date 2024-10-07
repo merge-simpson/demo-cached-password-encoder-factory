@@ -2,7 +2,8 @@ package letsdev.auth.controller;
 
 import letsdev.auth.controller.dto.PasswordEncodingRequest;
 import letsdev.auth.controller.dto.PasswordEncodingResponse;
-import letsdev.core.password.encoder.port.PasswordEncoderPort;
+import letsdev.core.password.encoder.port.CustomSaltingPasswordEncoder;
+import letsdev.core.password.encoder.port.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,13 +21,13 @@ public class PasswordEncoderApi {
             'S', 'a', 'l', 't', 'W', 'i', 't', 'h', '1', '6', 'l', 'e', 'n', 'g', 't', 'h'
     });
 
-    private final PasswordEncoderPort passwordEncoder;
-    private final PasswordEncoderPort passwordHistoryEncoder;
+    private final PasswordEncoder passwordEncoder;
+    private final CustomSaltingPasswordEncoder passwordHistoryEncoder;
 
     public PasswordEncoderApi(
-            PasswordEncoderPort passwordEncoder,
+            PasswordEncoder passwordEncoder,
             @Qualifier("passwordHistoryEncoder")
-            PasswordEncoderPort passwordHistoryEncoder
+            CustomSaltingPasswordEncoder passwordHistoryEncoder
     ) {
         this.passwordEncoder = passwordEncoder;
         this.passwordHistoryEncoder = passwordHistoryEncoder;

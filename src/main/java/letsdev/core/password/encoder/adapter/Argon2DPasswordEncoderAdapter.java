@@ -2,7 +2,8 @@ package letsdev.core.password.encoder.adapter;
 
 import jakarta.annotation.Nonnull;
 import letsdev.core.password.encoder.option.Argon2dPasswordEncoderOption;
-import letsdev.core.password.encoder.port.Argon2dPasswordEncoderPort;
+import letsdev.core.password.encoder.port.Argon2DCustomSaltingPasswordEncoder;
+import letsdev.core.password.encoder.port.Argon2DPasswordEncoder;
 import letsdev.core.password.exception.PasswordEncoderEncryptionException;
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
 import org.bouncycastle.crypto.params.Argon2Parameters;
@@ -12,7 +13,9 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Objects;
 
-public class Argon2dPasswordEncoderAdapter implements Argon2dPasswordEncoderPort {
+public class Argon2DPasswordEncoderAdapter
+        implements Argon2DPasswordEncoder,
+        Argon2DCustomSaltingPasswordEncoder {
 
     private final SecureRandom secureRandom = new SecureRandom();
     private byte[] seed;
@@ -22,7 +25,7 @@ public class Argon2dPasswordEncoderAdapter implements Argon2dPasswordEncoderPort
     private final int iterations;
     private final int memory;
 
-    public Argon2dPasswordEncoderAdapter(Argon2dPasswordEncoderOption option) {
+    public Argon2DPasswordEncoderAdapter(Argon2dPasswordEncoderOption option) {
         this(
                 option.saltLength(),
                 option.hashLength(),
@@ -32,7 +35,7 @@ public class Argon2dPasswordEncoderAdapter implements Argon2dPasswordEncoderPort
         );
     }
 
-    private Argon2dPasswordEncoderAdapter(
+    private Argon2DPasswordEncoderAdapter(
             int saltLength,
             int hashLength,
             int parallelism,

@@ -9,7 +9,7 @@ import letsdev.core.password.exception.PasswordEncoderEncryptionException
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.*
 
-class PasswordEncoderFactoryTest_Argon2d_Encoder: StringSpec({
+class PasswordEncoderFactoryTest_Encryption_Argon2d: StringSpec({
     lateinit var argon2dOption: Argon2dPasswordEncoderOption
     lateinit var factory: PasswordEncoderFactory
     lateinit var customSalt: ByteArray
@@ -73,7 +73,7 @@ class PasswordEncoderFactoryTest_Argon2d_Encoder: StringSpec({
     }
 
     "argon2d(encode + custom salt): 길이가 16인 솔트로 인코딩한 문자열은 {argon2}로 시작하며 평문 비교가 가능하다." {
-        val encoder = factory.create(argon2dOption)
+        val encoder = factory.createCustomSaltingEncoder(argon2dOption)
         val rawPassword = "abcd1234"
 
         val encodedPassword = encoder.encodeWithCustomSalt(rawPassword, customSalt)
@@ -83,7 +83,7 @@ class PasswordEncoderFactoryTest_Argon2d_Encoder: StringSpec({
     }
 
     "argon2d(encode + custom salt): 길이가 16이 아닌 솔트로 인코딩 할 수 없다." {
-        val encoder = factory.create(argon2dOption)
+        val encoder = factory.createCustomSaltingEncoder(argon2dOption)
         val rawPassword = "abcd1234"
         val wrongSalt = ByteArray(argon2dOption.saltLength + 1) { 0x1F }
 
@@ -93,7 +93,7 @@ class PasswordEncoderFactoryTest_Argon2d_Encoder: StringSpec({
     }
 
     "argon2d(encode + custom salt): 같은 암호를 같은 솔트로 인코딩한 문자열은 서로 일치한다." {
-        val encoder = factory.create(argon2dOption)
+        val encoder = factory.createCustomSaltingEncoder(argon2dOption)
         val rawPassword = "abcd1234"
 
         val encodedPasswordA = encoder.encodeWithCustomSalt(rawPassword, customSalt)

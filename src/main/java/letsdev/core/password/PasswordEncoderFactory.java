@@ -5,20 +5,22 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import letsdev.core.password.encoder.GeneralPasswordEncoderType;
 import letsdev.core.password.encoder.GeneralPasswordEncoderType.Argon2Variant;
-import letsdev.core.password.encoder.adapter.Argon2dPasswordEncoderAdapter;
-import letsdev.core.password.encoder.adapter.Argon2idPasswordEncoderAdapter;
+import letsdev.core.password.encoder.adapter.Argon2DPasswordEncoderAdapter;
+import letsdev.core.password.encoder.adapter.Argon2IdPasswordEncoderAdapter;
 import letsdev.core.password.encoder.adapter.BCryptPasswordEncoderAdapter;
 import letsdev.core.password.encoder.option.Argon2dPasswordEncoderOption;
 import letsdev.core.password.encoder.option.Argon2idPasswordEncoderOption;
 import letsdev.core.password.encoder.option.BcryptPasswordEncoderOption;
 import letsdev.core.password.encoder.option.PasswordEncoderOption;
-import letsdev.core.password.encoder.port.PasswordEncoderPort;
+import letsdev.core.password.encoder.port.CustomSaltingPasswordEncoder;
+import letsdev.core.password.encoder.port.PasswordEncoder;
+import letsdev.core.password.exception.PasswordEncoderGenerationException;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class PasswordEncoderFactory {
-    private final Cache<PasswordEncoderOption, PasswordEncoderPort> instanceCache;
+    private final Cache<PasswordEncoderOption, PasswordEncoder> instanceCache;
 
     public PasswordEncoderFactory() {
         this.instanceCache = Caffeine.newBuilder()
@@ -34,7 +36,7 @@ public class PasswordEncoderFactory {
             TimeUnit expirationAfterWriteTimeUnit,
             long maximumSize,
             long maximumWeight,
-            RemovalListener<PasswordEncoderOption, PasswordEncoderPort> removalListener
+            RemovalListener<PasswordEncoderOption, PasswordEncoder> removalListener
     ) {
         var cacheBuilder = Caffeine.newBuilder();
         if (expirationAfterAccessDuration != -1L) {
@@ -65,11 +67,20 @@ public class PasswordEncoderFactory {
         return new PasswordEncoderFactoryBuilder();
     }
 
-    public PasswordEncoderPort create(PasswordEncoderOption option) {
+    public PasswordEncoder create(PasswordEncoderOption option) {
         return instanceCache.get(option, this::createWithOption);
     }
 
-    private PasswordEncoderPort createWithOption(PasswordEncoderOption option) {
+    public CustomSaltingPasswordEncoder createCustomSaltingEncoder(PasswordEncoderOption option) {
+        // NOTE 지금은 모든 어댑터가 PasswordEncoder, CustomSaltingPasswordEncoder를 동시에 구현하기 때문에 가능한 코드.
+        PasswordEncoder passwordEncoder = instanceCache.get(option, this::createWithOption);
+        if (passwordEncoder instanceof CustomSaltingPasswordEncoder customSaltingPasswordEncoder) {
+            return customSaltingPasswordEncoder;
+        }
+        throw new PasswordEncoderGenerationException("Not supported: CustomSaltingPasswordEncoder");
+    }
+
+    private PasswordEncoder createWithOption(PasswordEncoderOption option) {
         Objects.requireNonNull(option);
         Objects.requireNonNull(option.encoderType());
 
@@ -81,11 +92,11 @@ public class PasswordEncoderFactory {
 //            case GeneralPasswordEncoderType.SCRYPT ->
 //                    new SCryptPasswordEncoderAdapter(option.as(ScryptPasswordEncoderOption.class));
             case GeneralPasswordEncoderType.ARGON2, Argon2Variant.ARGON2ID ->
-                    new Argon2idPasswordEncoderAdapter(option.as(Argon2idPasswordEncoderOption.class));
+                    new Argon2IdPasswordEncoderAdapter(option.as(Argon2idPasswordEncoderOption.class));
 //            case Argon2Variant.ARGON2I ->
 //                    new Argon2iPasswordEncoderAdapter(option.as(Argon2iPasswordEncoderOption.class));
             case Argon2Variant.ARGON2D ->
-                    new Argon2dPasswordEncoderAdapter(option.as(Argon2dPasswordEncoderOption.class));
+                    new Argon2DPasswordEncoderAdapter(option.as(Argon2dPasswordEncoderOption.class));
             default ->
                     throw new Error("Not Supported");
         };
@@ -99,7 +110,7 @@ public class PasswordEncoderFactory {
         private TimeUnit expirationAfterWriteTimeUnit;
         private long maximumSize = -1L;
         private long maximumWeight = -1L;
-        private RemovalListener<PasswordEncoderOption, PasswordEncoderPort> removalListener = null;
+        private RemovalListener<PasswordEncoderOption, PasswordEncoder> removalListener = null;
 
         public PasswordEncoderFactoryBuilder expireAfterAccess(long duration) {
             this.expireAfterAccessDuration = duration;
@@ -134,7 +145,7 @@ public class PasswordEncoderFactory {
         }
 
         public PasswordEncoderFactoryBuilder removalListener(
-                RemovalListener<PasswordEncoderOption, PasswordEncoderPort> removalListener
+                RemovalListener<PasswordEncoderOption, PasswordEncoder> removalListener
         ) {
             this.removalListener = removalListener;
             return this;

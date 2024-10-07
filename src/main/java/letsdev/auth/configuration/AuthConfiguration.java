@@ -3,7 +3,8 @@ package letsdev.auth.configuration;
 import letsdev.core.password.PasswordEncoderFactory;
 import letsdev.core.password.encoder.option.Argon2dPasswordEncoderOption;
 import letsdev.core.password.encoder.option.Argon2idPasswordEncoderOption;
-import letsdev.core.password.encoder.port.PasswordEncoderPort;
+import letsdev.core.password.encoder.port.CustomSaltingPasswordEncoder;
+import letsdev.core.password.encoder.port.PasswordEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -17,7 +18,7 @@ public class AuthConfiguration {
 
     @Bean
     @Primary
-    public PasswordEncoderPort passwordEncoder(PasswordEncoderFactory passwordEncoderFactory) {
+    public PasswordEncoder passwordEncoder(PasswordEncoderFactory passwordEncoderFactory) {
         var option = Argon2idPasswordEncoderOption.fromDefaultBuilder()
                 .gain(3f)
                 .build();
@@ -25,8 +26,10 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public PasswordEncoderPort passwordHistoryEncoder(PasswordEncoderFactory passwordEncoderFactory) {
-        var option = Argon2dPasswordEncoderOption.fromDefaultBuilder().build();
-        return passwordEncoderFactory.create(option);
+    public CustomSaltingPasswordEncoder passwordHistoryEncoder(PasswordEncoderFactory passwordEncoderFactory) {
+        var option = Argon2dPasswordEncoderOption.fromDefaultBuilder()
+                .gain(3f)
+                .build();
+        return passwordEncoderFactory.createCustomSaltingEncoder(option);
     }
 }

@@ -8,9 +8,9 @@ import letsdev.core.password.encoder.option.Argon2dPasswordEncoderOption
 import letsdev.core.password.encoder.option.Argon2idPasswordEncoderOption
 import letsdev.core.password.encoder.option.BcryptPasswordEncoderOption
 import letsdev.core.password.encoder.option.PasswordEncoderOption
-import letsdev.core.password.encoder.port.Argon2dPasswordEncoderPort
-import letsdev.core.password.encoder.port.Argon2idPasswordEncoderPort
-import letsdev.core.password.encoder.port.BCryptPasswordEncoderPort
+import letsdev.core.password.encoder.port.Argon2DPasswordEncoder
+import letsdev.core.password.encoder.port.Argon2IdPasswordEncoder
+import letsdev.core.password.encoder.port.BCryptPasswordEncoder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
@@ -62,7 +62,7 @@ class PasswordEncoderFactoryTest_Create {
 
         val encoder = factory.create(option)
 
-        assertTrue(encoder is BCryptPasswordEncoderPort)
+        assertTrue(encoder is BCryptPasswordEncoder)
     }
 
     @Test
@@ -74,7 +74,7 @@ class PasswordEncoderFactoryTest_Create {
 
         val encoder = factory.create(option)
 
-        assertTrue(encoder is Argon2idPasswordEncoderPort)
+        assertTrue(encoder is Argon2IdPasswordEncoder)
     }
 
     @Test
@@ -86,6 +86,6 @@ class PasswordEncoderFactoryTest_Create {
 
         val encoder = factory.create(option)
 
-        assertTrue(encoder is Argon2dPasswordEncoderPort)
+        assertTrue(encoder is Argon2DPasswordEncoder)
     }
 }

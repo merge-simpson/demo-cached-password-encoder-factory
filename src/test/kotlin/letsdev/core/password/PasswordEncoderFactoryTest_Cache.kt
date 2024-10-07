@@ -6,6 +6,7 @@ import io.mockk.mockk
 import letsdev.core.password.encoder.GeneralPasswordEncoderType
 import letsdev.core.password.encoder.option.Argon2idPasswordEncoderOption
 import letsdev.core.password.encoder.option.BcryptPasswordEncoderOption
+import letsdev.core.password.encoder.port.NotCastedPasswordEncoder
 import java.util.concurrent.TimeUnit
 import kotlin.test.*
 
@@ -56,7 +57,8 @@ class PasswordEncoderFactoryTest_Cache: StringSpec({
         assertSame(encoder1, encoder2)
     }
 
-    "캐시 Key 동일성: 동일 내용을 담은 옵션을 사용하면 서로 참조가 달라도 객체를 가져온다." {
+    "캐시 Key 동일성: 옵션의 참조가 달라도 내용이 동일하면 객체를 가져온다." {
+        // 같은 내용을 갖는 서로 다른 옵션 생성
         val newBcryptOption1 = BcryptPasswordEncoderOption(bcryptOption.strength)
         val newBcryptOption2 = BcryptPasswordEncoderOption(bcryptOption.strength)
 
@@ -64,6 +66,29 @@ class PasswordEncoderFactoryTest_Cache: StringSpec({
         val encoder2 = factory.create(newBcryptOption2)
 
         assertSame(encoder1, encoder2)
+    }
+
+    "캐시 Key 동일성: PasswordEncoder 객체와 CustomSaltingPasswordEncoder 객체는 캐싱이 호환된다." {
+        val bcryptEncoder = factoryWithSmallSize.create(bcryptOption)
+        val customSaltingBcryptEncoder = factoryWithSmallSize.createCustomSaltingEncoder(bcryptOption)
+
+        assertSame(
+                bcryptEncoder as NotCastedPasswordEncoder,
+                customSaltingBcryptEncoder as NotCastedPasswordEncoder
+        )
+    }
+
+    "캐시 Key 동일성: 옵션의 참조가 달라도 내용이 같으면 PasswordEncoder, CustomSaltingPasswordEncoder 캐싱이 호환된다." {
+        val newBcryptOption1 = BcryptPasswordEncoderOption(bcryptOption.strength)
+        val newBcryptOption2 = BcryptPasswordEncoderOption(bcryptOption.strength)
+
+        val bcryptEncoder = factoryWithSmallSize.create(newBcryptOption1)
+        val customSaltingBcryptEncoder = factoryWithSmallSize.createCustomSaltingEncoder(newBcryptOption2)
+
+        assertSame(
+                bcryptEncoder as NotCastedPasswordEncoder,
+                customSaltingBcryptEncoder as NotCastedPasswordEncoder
+        )
     }
 
     "팩토리 빌더(시간): 입력한 시간 동안 캐싱이 된다." {

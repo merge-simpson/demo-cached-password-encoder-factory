@@ -72,6 +72,14 @@ public class PasswordEncoderException extends RuntimeException {
         this.message = message;
     }
 
+    public ErrorCode errorCode() {
+        return errorCode;
+    }
+
+    public String message() {
+        return message;
+    }
+
     private static class DefaultErrorCodeHolder {
         private static final ErrorCode DEFAULT_ERROR_CODE = new ErrorCode() {
             public String name() {

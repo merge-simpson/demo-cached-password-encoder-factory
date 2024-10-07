@@ -9,7 +9,7 @@ import letsdev.core.password.exception.PasswordEncoderEncryptionException
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.*
 
-class PasswordEncoderFactoryTest_Bcrypt_Encoder: StringSpec({
+class PasswordEncoderFactoryTest_Encryption_Bcrypt: StringSpec({
     lateinit var bcryptOption: BcryptPasswordEncoderOption
     lateinit var factory: PasswordEncoderFactory
     lateinit var customSalt: ByteArray
@@ -57,7 +57,7 @@ class PasswordEncoderFactoryTest_Bcrypt_Encoder: StringSpec({
     }
 
     "bcrypt(encode + custom salt): 길이가 16인 솔트로 인코딩한 문자열은 {bcrypt}로 시작하며 평문 비교가 가능하다." {
-        val encoder = factory.create(bcryptOption)
+        val encoder = factory.createCustomSaltingEncoder(bcryptOption)
         val rawPassword = "abcd1234"
 
         val encodedPassword = encoder.encodeWithCustomSalt(rawPassword, customSalt)
@@ -67,7 +67,7 @@ class PasswordEncoderFactoryTest_Bcrypt_Encoder: StringSpec({
     }
 
     "bcrypt(encode + custom salt): 길이가 16이 아닌 솔트로 인코딩 할 수 없다." {
-        val encoder = factory.create(bcryptOption)
+        val encoder = factory.createCustomSaltingEncoder(bcryptOption)
         val rawPassword = "abcd1234"
         val wrongSalt = ByteArray(3) { 0x1F }
 
@@ -77,7 +77,7 @@ class PasswordEncoderFactoryTest_Bcrypt_Encoder: StringSpec({
     }
 
     "bcrypt(encode + custom salt): 같은 암호를 같은 솔트로 인코딩한 문자열은 서로 일치한다." {
-        val encoder = factory.create(bcryptOption)
+        val encoder = factory.createCustomSaltingEncoder(bcryptOption)
         val rawPassword = "abcd1234"
 
         val encodedPasswordA = encoder.encodeWithCustomSalt(rawPassword, customSalt)

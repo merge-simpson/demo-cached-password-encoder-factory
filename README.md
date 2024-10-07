@@ -14,10 +14,15 @@
 
 ## 패스워드 인코더 인스턴스 생성하기
 
-팩토리는 다음 코드로 패스워드 인코더를 생성합니다. 
+팩토리는 다음처럼 두 방식으로 패스워드 인코더를 생성합니다. 
 
 ```java
+// 일반 패스워드 인코더 (내부에서 솔트를 자동으로 생성합니다.)
 var encoder = factory.create(option);
+
+// 커스텀 솔트를 사용하는 패스워드 인코더
+//  직접 만든 솔트를 넣을 수 있으며, 내부에서 추가적인 랜덤 솔트를 만들지 않습니다.
+var customSaltingEncoder = factory.createCustomSaltingEncoder(option);
 ```
 
 - option: &lt;&lt;interface&gt;&gt; PasswordEncoderOption
@@ -106,3 +111,24 @@ var factory = PasswordEncoderFactory.builder()
 - maximumSize: 최대 저장 개수
 - maximumWeight: 최대 저장 용량
 - removalListener((k, v, cause) -> {}): 요소 삭제 이벤트 리스너를 추가할 수 있습니다.
+
+### 메서드 간 공유되는 캐시
+
+지금 데모 버전에서 사용하는 패스워드 인코더 인스턴스는 모두
+`PasswordEncoder` 인터페이스와 `CustomSaltingPasswordEncoder`를 동시에 구현합니다.
+
+```java
+var factory = new PasswordEncoderFactory();
+var argon2IdOption = Argon2idPasswordEncoderOption.fromDefaultBuilder()
+        .gain(3f)
+        .build();
+
+// 같은 옵션을 사용하여 생성하면, 다음 두 메서드는 같은 인스턴스를 캐싱하여 반환합니다.
+var passwordEncoder = factory.create(argon2IdOption);
+var customSaltingPasswordEncoder = factory.createCustomSaltingEncoder(argon2IdOption);
+```
+
+```kotlin
+// 다음 결과를 기대할 수 있습니다.
+assertSame(passwordEncoder, customSaltingPasswordEncoder)
+```
