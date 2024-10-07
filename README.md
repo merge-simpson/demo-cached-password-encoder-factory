@@ -1,7 +1,7 @@
 # Features
 
 - [Password Encoder Factory](#password-encoder-factory)
-- [Cache Password Encoder Instances And Expiration](#패스워드-인코더-객체-캐싱)
+- [Cache Password Encoder Instances And Expire Them Automatically.](#패스워드-인코더-객체-캐싱)
 
 # Password Encoder Factory
 
@@ -77,7 +77,7 @@ var option = Argon2dPasswordEncoderOption.fromDefaultBuilder()
 var bcryptPasswordEncoder = factory.create(option);
 ```
 
-**Argon2d의 옵션은 Argon2id와 같습니다.**
+**Argon2d의 옵션은 Argon2id와 같은 항목을 같습니다.**
 
 ## 패스워드 인코더 객체 캐싱
 
