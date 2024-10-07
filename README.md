@@ -20,7 +20,7 @@
 var encoder = factory.create(option);
 ```
 
-- option: <<interface>> PasswordEncoderOption
+- option: &lt;&lt;interface&gt;&gt; PasswordEncoderOption
 - option 인스턴스는 `PasswordEncoderType` 객체를 반환하는 `encoderType()` 메서드를 갖습니다.
 
 Examples
